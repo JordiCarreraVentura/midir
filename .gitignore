@@ -6,6 +6,10 @@ pyvenv.cfg
 # local developer documentation
 specs.txt
 
+# pypi binaries
+dist
+src/midir.egg-info
+
 # Python cache
 src/__pycache__
 src/midir/__pycache__
