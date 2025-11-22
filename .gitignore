@@ -1,4 +1,12 @@
-# created by virtualenv automatically
+# virtual environment
 bin
 lib
 pyvenv.cfg
+
+# local developer documentation
+specs.txt
+
+# Python cache
+src/__pycache__
+src/midir/__pycache__
+tests/__pycache__
