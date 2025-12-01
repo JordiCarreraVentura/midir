@@ -14,3 +14,6 @@ src/midir.egg-info
 src/__pycache__
 src/midir/__pycache__
 tests/__pycache__
+
+# MacOS cache
+.DS_Store

@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "midir"
-version = "1.0.0"
+version = "1.1.0"
 authors = [
   { name="Jordi Carrera Ventura", email="jordi.carrera.ventura@gmail.com" },
 ]
 description = ""
 readme = "README.md"
-requires-python = ">=3.14"
+requires-python = ">=3.9"
 classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
