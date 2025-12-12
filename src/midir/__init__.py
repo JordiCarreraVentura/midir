@@ -1,6 +1,47 @@
 import inspect
 import os
 import sys
+import warnings
+from typing import Callable, List
+
+
+MAX_DEPTH = 50
+
+
+class FolderNotFoundError(OSError):
+    pass
+
+
+def lsdir(
+    path: str,
+    return_full_path: bool = True,
+    files: bool = True,
+    folders: bool = True,
+    filter: Callable = None
+) -> List[str]:
+    real_path = os.path.realpath(path)
+    if not os.path.isdir(real_path):
+        raise NotADirectoryError(f"'{path}' (searched as '{real_path}')")
+    if not (files or folders or filter):
+        raise ValueError("Asking for no files or folders, and with no filter?")
+    elif (files or folders) and filter:
+        warnings.warn(
+            "a custom filter was specified but files "
+            "and folders parameters are still set to `True`."
+        )
+    full_paths = [
+        os.path.join(real_path if return_full_path else path, object)
+        for object in os.listdir(real_path)
+    ]
+    return sorted([
+        full_path for full_path in full_paths
+        if (
+            (files and os.path.isfile(full_path))
+            or (folders and os.path.isdir(full_path))
+            or filter is not None and filter(full_path)
+        )
+    ])
+
 
 def midir(path: str) -> str:
     """
@@ -17,12 +58,6 @@ def midir(path: str) -> str:
     """
     return os.path.dirname(path)
 
-class FolderNotFoundError(OSError):
-    """
-    Custom exception class to handle the situations when folder is not found
-    """
-    pass
-
 
 def get_caller() -> str:
     """
@@ -33,6 +68,7 @@ def get_caller() -> str:
     str: The name of the file that contains the current execution point 
     """
     return inspect.stack()[2].filename
+
 
 def mipath(path: str = None) -> str:
     """
@@ -52,6 +88,7 @@ def mipath(path: str = None) -> str:
     else:
         return os.path.realpath(path)
 
+
 def midir(path: str = None) -> str:
     """
     Returns the directory name from the given path
@@ -69,6 +106,7 @@ def midir(path: str = None) -> str:
         return os.path.dirname(get_caller())
     else:
         return os.path.dirname(path)
+
 
 def root_levels(levels: int = 1) -> None:
     """
