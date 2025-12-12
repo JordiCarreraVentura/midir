@@ -19,6 +19,45 @@ def lsdir(
     folders: bool = True,
     filter: Callable = None
 ) -> List[str]:
+    """
+    Retrieves a list of file/folder names from a specified directory path. 
+
+    Parameters
+    ----------
+    path: str
+        The directory path from which to retrieve file/folder names.
+        
+    return_full_path: bool, optional
+        If `True`, the function will return the full path for each file/folder.
+        If `False`, it will return just the file/folder names. Default value is `True`.
+        
+    files: bool, optional
+        If `True`, the function will include files in the returned list.
+        If `False`, it will not include any files. Default value is `True`.
+        
+    folders: bool, optional
+        If `True`, the function will include folder names in the returned list.
+        If `False`, it will not include any folder names. Default value is `True`.
+        
+    filter: Callable, optional
+        If specified, this function will be applied to filter the returned list.
+        The function should take a string parameter (the file/folder name or full path, 
+        depending on `return_full_path`) and return a boolean value.
+
+    Returns
+    -------
+    List[str]
+        A sorted list of file and/or folder names (or path depending upon return_full_path attribute) from the specified 
+        directory that meet any specified filter condition.
+
+    Raises
+    ----------
+    NotADirectoryError: if the specified path does not exist or is not a directory.
+    
+    ValueError: if `files`, `folders`, and `filter` are all `False` or `None`, as this would result in no output.
+    
+    Warning: if both `files` and `folders` are `True` and a `filter` function is also specified.
+    """
     real_path = os.path.realpath(path)
     if not os.path.isdir(real_path):
         raise NotADirectoryError(f"'{path}' (searched as '{real_path}')")
@@ -135,7 +174,11 @@ def root_levels(levels: int = 1) -> None:
         folder = os.path.dirname(folder)
         levels -= 1
 
-def root_suffix(suffix: str) -> None:
+
+def root_suffix(
+    suffix: str,
+    max_depth: int = MAX_DEPTH
+) -> str:
     """
     Adds directories to sys.path
     Starts from the directory of the caller, moves up the directory hierarchy 
@@ -157,13 +200,41 @@ def root_suffix(suffix: str) -> None:
     elif not suffix.strip():
         raise ValueError(f'Expects a non-null string: {suffix}')
     folder = midir(get_caller())
-    while True:
+    depth = 0
+    while depth <= max_depth:
         if (
             os.path.basename(folder).endswith(suffix)
             and folder not in sys.path
         ):
             sys.path.append(folder)
-            return
+            return folder
         folder = os.path.dirname(folder)
-        if folder == '/':
-            raise FolderNotFoundError(suffix)
+        if folder == '/' or depth == max_depth:
+            return scan_downwards(suffix, max_depth)
+        depth += 1
+    raise FolderNotFoundError(suffix)
+
+
+def scan_downwards(
+    suffix: str,
+    max_depth: int
+) -> str:
+    calldir = midir(get_caller())
+    folders = lsdir(calldir, files=False)
+    depth = 0
+    while folders and depth <= max_depth:
+        _folders = []
+        broken = False
+        for folder in folders:
+            if folder.endswith(suffix):
+                if folder not in sys.path:
+                    sys.path.append(folder)
+                broken = True
+                break
+            else:
+                _folders += lsdir(folder, files=False)
+        if broken:
+            return folder
+        folders = _folders
+        depth += 1
+    raise FolderNotFoundError(suffix)

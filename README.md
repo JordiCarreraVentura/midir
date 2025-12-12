@@ -20,6 +20,8 @@ A library for resolving relative module dependencies.
 
 6. `root_suffix(suffix: str) -> None:` Similar to `root_levels`, but instead of moving up a certain number of directories, it continues to move up until it finds a directory whose name ends with the provided suffix and adds that directory to sys.path.
 
+7. `lsdir(path: str) -> List[str]:` This function retrieves a sorted list of file and/or folder names from a specified directory path. Whether it returns file or folder names depends on the parameters set. It returns the full path of these files/folders if requested. Custom filter conditions can be applied. Raises errors if path isn't found or if no output requirements are specified. A warning is given if both file and folder parameters are set to true while a custom filter function is also specified.
+
 ## Exceptions
 
 1. `FolderNotFoundError:` Custom exception raised when no folder matching the required conditions (in `root_suffix`) is found in the directory hierarchy.
