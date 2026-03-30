@@ -2,6 +2,7 @@ import inspect
 import os
 import sys
 import warnings
+from pathlib import Path
 from typing import Callable, List
 
 
@@ -109,42 +110,64 @@ def get_caller() -> str:
     return inspect.stack()[2].filename
 
 
-def mipath(path: str = None) -> str:
+def mipath(path: str | None = None, pathlib: bool = False) -> str | Path:
     """
     Returns the canonical path
 
     Parameters
     ----------
-    path: (str, optional)
-        File or directory path. Defaults to None.
+    path: str | None = None
+        File or directory path. Defaults to None. If not provided, the
+        path of the file where the function is being called from is used.
+    
+    pathlib: bool = False
+        If True, the path returned is of type `pathlib.Path` for added 
+        downstream functionality. Otherwise, a string is returned by
+        default.
 
     Returns
     -------
     str: Canonical path of the current execution point or given path
     """
-    if path is None:
-        return os.path.realpath(get_caller())
+    if not path:
+        target_path = get_caller()
     else:
-        return os.path.realpath(path)
+        target_path = path
+    intended_path = os.path.realpath(target_path)
+    return (
+        intended_path if not pathlib
+        else Path(intended_path)
+    )
 
 
-def midir(path: str = None) -> str:
+def midir(path: str = None, pathlib: bool = False) -> str | Path:
     """
     Returns the directory name from the given path
 
     Parameters
     ----------
-    path: str, optional
-        File or directory path. Defaults to None.
+    path: str | None = None
+        File or directory path. Defaults to None. If not provided, the
+        path of the file where the function is being called from is used.
+    
+    pathlib: bool = False
+        If True, the path returned is of type `pathlib.Path` for added 
+        downstream functionality. Otherwise, a string is returned by
+        default.
 
     Returns
     -------
     str: Directory name of the current execution point or given path
     """
     if path is None:
-        return os.path.dirname(get_caller())
+        target_path = get_caller()
     else:
-        return os.path.dirname(path)
+        target_path = path
+    intended_path = os.path.dirname(target_path)
+    return (
+        Path(intended_path)
+        if pathlib else intended_path
+    )
 
 
 def root_levels(levels: int = 1) -> None:
@@ -202,11 +225,9 @@ def root_suffix(
     folder = midir(get_caller())
     depth = 0
     while depth <= max_depth:
-        if (
-            os.path.basename(folder).endswith(suffix)
-            and folder not in sys.path
-        ):
-            sys.path.append(folder)
+        if os.path.basename(folder).endswith(suffix):
+            if folder not in sys.path:
+                sys.path.append(folder)
             return folder
         folder = os.path.dirname(folder)
         if folder == '/' or depth == max_depth:

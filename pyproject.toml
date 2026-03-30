@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "midir"
-version = "1.2.0"
+version = "1.2.1"
 authors = [
   { name="Jordi Carrera Ventura", email="jordi.carrera.ventura@gmail.com" },
 ]
@@ -30,6 +30,11 @@ dependencies = [
 
 [tool.midir]
 changelog = """
+## 1.2.1
+- Support 'Path' as on-demand return data type for 'mipath' and 'midir' functions.
+- Fix bug in loop exiting logic.
+- Document testing commands.
+
 ## 1.2.0
 - Implement function `lsdir`.
 - Search for folder downwards as a fallback.
@@ -47,4 +52,4 @@ tags = [
 ]
 
 [project.urls]
-"Google page" = "https://www.google.com"
+"GitHub repository" = "https://github.com/JordiCarreraVentura/midir"

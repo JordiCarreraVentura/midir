@@ -44,6 +44,10 @@ def test_midir():
     #print(midir(__file__))
     assert midir().endswith("midir/tests")
 
+def test_midir_pathlib():
+    assert midir(pathlib=True).name == "tests"
+    assert midir(pathlib=True).parent.name == "midir"
+
 def test_mipath():
     assert mipath().endswith("midir/tests/test_unit.py")
 
@@ -117,10 +121,21 @@ def test_lsdir_custom_filter():
     assert len(_match.replace("level0/level1b", "")) > 3
 
 
+def test_mipath_pathlib():
+    assert str(mipath(pathlib=True).parent.parent).endswith("midir")
+    path_to_this_repository = mipath(pathlib=True).parent.parent
+    assert mipath(path_to_this_repository).endswith('midir')
+    assert (
+        mipath(path_to_this_repository, pathlib=True)
+        .exists()
+    )
+
 
 if __name__ == '__main__':
     test_midir()
+    test_midir_pathlib()
     test_mipath()
+    test_mipath_pathlib()
     test_lsdir_files()
     test_lsdir_folders()
     test_lsdir_custom_filter()
